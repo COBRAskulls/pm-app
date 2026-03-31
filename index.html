@@ -248,6 +248,104 @@
     }
     .notes-body::placeholder { color: var(--text3); }
 
+    /* ── TASK MODAL ── */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 400;
+      background: rgba(0,0,0,0.35); backdrop-filter: blur(2px);
+      display: none; align-items: center; justify-content: center; padding: 1rem;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--surface); border-radius: 14px; box-shadow: var(--shadow-lg);
+      width: 100%; max-width: 580px; max-height: 88vh;
+      display: flex; flex-direction: column; overflow: hidden;
+    }
+    .modal-head {
+      padding: 1.1rem 1.25rem; border-bottom: 1px solid var(--border);
+      display: flex; align-items: flex-start; gap: 0.75rem;
+    }
+    .modal-checkbox {
+      width: 18px; height: 18px; border-radius: 5px; border: 2px solid var(--border);
+      flex-shrink: 0; margin-top: 2px; cursor: pointer; display: flex;
+      align-items: center; justify-content: center; font-size: 11px; transition: all 0.12s;
+    }
+    .modal-checkbox.todo { border-color: var(--border); }
+    .modal-checkbox.in_progress { border-color: var(--yellow); background: var(--yellow-bg); }
+    .modal-checkbox.done { border-color: var(--green); background: var(--green); color: #fff; }
+    .modal-title-wrap { flex: 1; }
+    .modal-title {
+      font-size: 1rem; font-weight: 600; color: var(--text);
+      border: none; outline: none; width: 100%; font-family: inherit;
+      background: transparent; padding: 0; line-height: 1.4;
+    }
+    .modal-title:focus { color: var(--accent); }
+    .modal-status-row { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.4rem; flex-wrap: wrap; }
+    .status-chip {
+      font-size: 0.7rem; font-weight: 600; padding: 0.18rem 0.55rem; border-radius: 20px;
+      border: 1px solid var(--border); background: var(--surface2); color: var(--text2);
+      cursor: pointer; transition: all 0.12s;
+    }
+    .status-chip.active-todo     { border-color: var(--text3);  background: var(--surface2);  color: var(--text); }
+    .status-chip.active-in_progress { border-color: var(--yellow); background: var(--yellow-bg); color: #92400e; }
+    .status-chip.active-done     { border-color: var(--green);  background: var(--green-bg);  color: #065f46; }
+    .modal-close {
+      background: none; border: none; cursor: pointer; color: var(--text3);
+      font-size: 1.1rem; padding: 0.2rem; line-height: 1; transition: color 0.12s; flex-shrink: 0;
+    }
+    .modal-close:hover { color: var(--text); }
+
+    .modal-body { padding: 1.1rem 1.25rem; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 1.25rem; }
+
+    .modal-section-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text3); margin-bottom: 0.5rem; }
+
+    .modal-notes {
+      width: 100%; border: 1px solid var(--border); border-radius: var(--radius-sm);
+      padding: 0.7rem 0.85rem; font-size: 0.85rem; font-family: inherit; color: var(--text);
+      background: var(--surface2); outline: none; resize: vertical; min-height: 90px;
+      line-height: 1.6; transition: border-color 0.12s;
+    }
+    .modal-notes:focus { border-color: var(--accent); background: var(--surface); }
+    .modal-notes::placeholder { color: var(--text3); }
+
+    /* attachments */
+    .attach-list { display: flex; flex-direction: column; gap: 0.4rem; }
+    .attach-item {
+      display: flex; align-items: center; gap: 0.6rem;
+      padding: 0.5rem 0.75rem; background: var(--surface2); border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+    }
+    .attach-icon { font-size: 1rem; flex-shrink: 0; }
+    .attach-name { font-size: 0.82rem; color: var(--text); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .attach-name a { color: var(--accent); text-decoration: none; font-weight: 500; }
+    .attach-name a:hover { text-decoration: underline; }
+    .attach-size { font-size: 0.72rem; color: var(--text3); flex-shrink: 0; }
+    .attach-del { background: none; border: none; cursor: pointer; color: var(--text3); font-size: 0.85rem; padding: 0.1rem 0.3rem; border-radius: 3px; transition: all 0.12s; }
+    .attach-del:hover { color: var(--red); background: var(--red-bg); }
+
+    .attach-drop {
+      border: 2px dashed var(--border); border-radius: var(--radius-sm);
+      padding: 1.25rem; text-align: center; cursor: pointer; transition: all 0.15s;
+      background: var(--surface2);
+    }
+    .attach-drop:hover, .attach-drop.drag-over { border-color: var(--accent); background: var(--accent-light); }
+    .attach-drop p { font-size: 0.82rem; color: var(--text3); margin-top: 0.3rem; }
+    .attach-drop strong { color: var(--accent); }
+    .attach-drop input { display: none; }
+    .upload-progress { font-size: 0.78rem; color: var(--accent); margin-top: 0.4rem; display: none; }
+    .upload-progress.visible { display: block; }
+
+    .modal-foot {
+      padding: 0.85rem 1.25rem; border-top: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center; gap: 0.75rem;
+    }
+    .modal-save { background: var(--accent); color: #fff; border: none; border-radius: var(--radius-sm); padding: 0.5rem 1.25rem; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: background 0.12s; }
+    .modal-save:hover { background: var(--accent-hover); }
+    .modal-save:disabled { opacity: 0.5; cursor: not-allowed; }
+    .modal-delete { background: none; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0.5rem 0.9rem; font-size: 0.82rem; color: var(--text2); cursor: pointer; transition: all 0.12s; }
+    .modal-delete:hover { border-color: var(--red); color: var(--red); background: var(--red-bg); }
+    .modal-save-status { font-size: 0.75rem; color: var(--text3); }
+    .modal-save-status.ok { color: var(--green); }
+
     /* ── CHAT WIDGET ── */
     .chat-fab {
       position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 300;
@@ -406,6 +504,48 @@
         <span class="notes-status" id="notesStatus"></span>
       </div>
       <textarea class="notes-body" id="notesBody" placeholder="Write notes about this project…"></textarea>
+    </div>
+  </div>
+
+  <!-- TASK MODAL -->
+  <div class="modal-overlay" id="taskModal" onclick="closeModalOnBg(event)">
+    <div class="modal">
+      <div class="modal-head">
+        <div class="modal-checkbox" id="modalCheckbox" onclick="cycleModalStatus()"></div>
+        <div class="modal-title-wrap">
+          <input class="modal-title" id="modalTitle" type="text" placeholder="Task title…" />
+          <div class="modal-status-row" id="modalStatusRow"></div>
+        </div>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div>
+          <div class="modal-section-label">Notes / Details</div>
+          <textarea class="modal-notes" id="modalNotes" placeholder="Describe exactly what you want done, any context, links, requirements…"></textarea>
+        </div>
+        <div>
+          <div class="modal-section-label">Attachments</div>
+          <div class="attach-list" id="attachList"></div>
+          <div class="attach-drop" id="attachDrop"
+            onclick="document.getElementById('attachFile').click()"
+            ondragover="event.preventDefault();this.classList.add('drag-over')"
+            ondragleave="this.classList.remove('drag-over')"
+            ondrop="handleDrop(event)">
+            <div style="font-size:1.5rem">📎</div>
+            <p><strong>Click to upload</strong> or drag & drop</p>
+            <p>Images, PDFs, docs — anything up to 50MB</p>
+            <input type="file" id="attachFile" multiple onchange="handleFileSelect(event)">
+          </div>
+          <div class="upload-progress" id="uploadProgress"></div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="modal-delete" onclick="deleteModalTask()">Delete Task</button>
+        <div style="display:flex;align-items:center;gap:0.75rem">
+          <span class="modal-save-status" id="modalSaveStatus"></span>
+          <button class="modal-save" id="modalSaveBtn" onclick="saveModal()">Save</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -596,8 +736,6 @@
         { key:'in_progress', label:'In Progress',  dot:'dot-progress' },
         { key:'done',        label:'Done',          dot:'dot-done' },
       ];
-      const next  = { todo:'in_progress', in_progress:'done', done:'todo' };
-      const nextL = { todo:'▶ Start', in_progress:'✓ Done', done:'↺ Reopen' };
 
       document.getElementById('taskBoard').innerHTML = cols.map(col => {
         const list = tasks.filter(t=>t.status===col.key);
@@ -612,12 +750,11 @@
             </div>
             <div class="task-list" id="tcol-${col.key}">
               ${list.length ? list.map(t=>`
-                <div class="task-card status-${t.status}" onclick="cycleTask('${t.id}')">
-                  <div class="task-checkbox">${t.status==='done'?'✓':''}</div>
-                  <span class="task-text">${esc(t.title)}</span>
-                  <div class="task-actions" onclick="event.stopPropagation()">
-                    <button class="t-btn" onclick="moveTask('${t.id}','${next[t.status]}')">${nextL[t.status]}</button>
-                    <button class="t-btn del" onclick="deleteTask('${t.id}')">✕</button>
+                <div class="task-card status-${t.status}" onclick="openTaskModal('${t.id}')">
+                  <div class="task-checkbox" onclick="event.stopPropagation();quickCycle('${t.id}')">${t.status==='done'?'✓':''}</div>
+                  <div style="flex:1;min-width:0">
+                    <span class="task-text">${esc(t.title)}</span>
+                    ${t.notes ? `<div style="font-size:0.72rem;color:var(--text3);margin-top:0.15rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(t.notes.slice(0,60))}${t.notes.length>60?'…':''}</div>` : ''}
                   </div>
                 </div>
               `).join('') : `<div class="empty-col">Empty</div>`}
@@ -644,23 +781,170 @@
       finally { if (document.getElementById(`ainput-${status}`)) document.getElementById(`ainput-${status}`).disabled = false; }
     }
 
-    async function cycleTask(id) {
+    async function quickCycle(id) {
       const next = { todo:'in_progress', in_progress:'done', done:'todo' };
       const t = tasks.find(x=>x.id===id); if (!t) return;
-      await moveTask(id, next[t.status]);
-    }
-
-    async function moveTask(id, status) {
-      await PATCH(`tasks?id=eq.${id}`, { status, updated_at: new Date().toISOString() });
-      const t = tasks.find(x=>x.id===id); if (t) t.status = status;
+      await PATCH(`tasks?id=eq.${id}`, { status: next[t.status], updated_at: new Date().toISOString() });
+      t.status = next[t.status];
       renderBoard();
+      // update modal if open
+      if (modalTask?.id === id) { modalTask.status = t.status; refreshModalStatus(); }
     }
 
-    async function deleteTask(id) {
-      if (!confirm('Delete this task?')) return;
-      await DEL(`tasks?id=eq.${id}`);
-      tasks = tasks.filter(x=>x.id!==id); renderBoard();
+    // ── Task Modal ─────────────────────────────────────────────────────────────
+    let modalTask = null;
+    let modalAttachments = [];
+
+    async function openTaskModal(id) {
+      modalTask = tasks.find(t=>t.id===id);
+      if (!modalTask) return;
+
+      document.getElementById('modalTitle').value = modalTask.title;
+      document.getElementById('modalNotes').value = modalTask.notes || '';
+      refreshModalStatus();
+
+      // Load attachments
+      modalAttachments = [];
+      try {
+        modalAttachments = await GET(`task_attachments?task_id=eq.${id}&select=*&order=created_at.asc`);
+      } catch(_) {}
+      renderAttachments();
+
+      document.getElementById('taskModal').classList.add('open');
+      document.getElementById('modalTitle').focus();
     }
+
+    function refreshModalStatus() {
+      const s = modalTask.status;
+      const cb = document.getElementById('modalCheckbox');
+      cb.className = `modal-checkbox ${s}`;
+      cb.textContent = s==='done' ? '✓' : '';
+
+      const chips = ['todo','in_progress','done'];
+      const labels = { todo:'To Do', in_progress:'In Progress', done:'Done' };
+      document.getElementById('modalStatusRow').innerHTML = chips.map(c=>
+        `<span class="status-chip${s===c?' active-'+c:''}" onclick="setModalStatus('${c}')">${labels[c]}</span>`
+      ).join('');
+    }
+
+    function setModalStatus(status) {
+      modalTask.status = status;
+      refreshModalStatus();
+    }
+
+    function cycleModalStatus() {
+      const next = { todo:'in_progress', in_progress:'done', done:'todo' };
+      setModalStatus(next[modalTask.status]);
+    }
+
+    function closeModal() {
+      document.getElementById('taskModal').classList.remove('open');
+      modalTask = null;
+    }
+
+    function closeModalOnBg(e) {
+      if (e.target === document.getElementById('taskModal')) closeModal();
+    }
+
+    async function saveModal() {
+      if (!modalTask) return;
+      const btn = document.getElementById('modalSaveBtn');
+      const st  = document.getElementById('modalSaveStatus');
+      btn.disabled = true; st.textContent = 'Saving…'; st.className = 'modal-save-status';
+
+      const title  = document.getElementById('modalTitle').value.trim();
+      const notes  = document.getElementById('modalNotes').value;
+      const status = modalTask.status;
+
+      try {
+        await PATCH(`tasks?id=eq.${modalTask.id}`, { title, notes, status, updated_at: new Date().toISOString() });
+        const t = tasks.find(x=>x.id===modalTask.id);
+        if (t) { t.title = title; t.notes = notes; t.status = status; }
+        renderBoard();
+        st.textContent = 'Saved ✓'; st.className = 'modal-save-status ok';
+        setTimeout(() => { st.textContent = ''; st.className = 'modal-save-status'; }, 2000);
+      } catch(e) {
+        st.textContent = 'Error: ' + e.message; st.className = 'modal-save-status';
+      } finally { btn.disabled = false; }
+    }
+
+    async function deleteModalTask() {
+      if (!modalTask || !confirm('Delete this task and all its attachments?')) return;
+      await DEL(`tasks?id=eq.${modalTask.id}`);
+      tasks = tasks.filter(x=>x.id!==modalTask.id);
+      renderBoard(); closeModal();
+    }
+
+    // ── Attachments ───────────────────────────────────────────────────────────
+    function fileIcon(type) {
+      if (!type) return '📄';
+      if (type.startsWith('image/')) return '🖼️';
+      if (type.includes('pdf')) return '📕';
+      if (type.includes('word') || type.includes('document')) return '📝';
+      if (type.includes('sheet') || type.includes('excel') || type.includes('csv')) return '📊';
+      if (type.includes('zip') || type.includes('tar') || type.includes('rar')) return '🗜️';
+      return '📄';
+    }
+
+    function fmtSize(bytes) {
+      if (!bytes) return '';
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1024*1024) return (bytes/1024).toFixed(1) + ' KB';
+      return (bytes/(1024*1024)).toFixed(1) + ' MB';
+    }
+
+    function renderAttachments() {
+      const list = document.getElementById('attachList');
+      list.innerHTML = modalAttachments.map(a => `
+        <div class="attach-item" id="att-${a.id}">
+          <span class="attach-icon">${fileIcon(a.type)}</span>
+          <span class="attach-name"><a href="${a.url}" target="_blank" rel="noopener">${esc(a.name)}</a></span>
+          <span class="attach-size">${fmtSize(a.size)}</span>
+          <button class="attach-del" onclick="deleteAttachment('${a.id}','${a.name}')" title="Remove">✕</button>
+        </div>
+      `).join('');
+    }
+
+    async function uploadFile(file) {
+      if (!modalTask) return;
+      const prog = document.getElementById('uploadProgress');
+      prog.textContent = `Uploading ${file.name}…`; prog.classList.add('visible');
+
+      const path = `${modalTask.id}/${Date.now()}-${file.name}`;
+      const uploadRes = await fetch(
+        `${SB_URL}/storage/v1/object/task-attachments/${path}`,
+        { method:'POST', headers:{ 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Content-Type': file.type || 'application/octet-stream' }, body: file }
+      );
+      if (!uploadRes.ok) { prog.textContent = 'Upload failed'; return; }
+
+      const url = `${SB_URL}/storage/v1/object/public/task-attachments/${path}`;
+      const [att] = await POST('task_attachments', { task_id: modalTask.id, name: file.name, url, type: file.type, size: file.size });
+      modalAttachments.push(att);
+      renderAttachments();
+      prog.textContent = `${file.name} uploaded ✓`;
+      setTimeout(() => { prog.textContent = ''; prog.classList.remove('visible'); }, 2000);
+    }
+
+    function handleFileSelect(e) {
+      [...e.target.files].forEach(uploadFile);
+      e.target.value = '';
+    }
+
+    function handleDrop(e) {
+      e.preventDefault();
+      document.getElementById('attachDrop').classList.remove('drag-over');
+      [...e.dataTransfer.files].forEach(uploadFile);
+    }
+
+    async function deleteAttachment(id, name) {
+      if (!confirm(`Remove "${name}"?`)) return;
+      await DEL(`task_attachments?id=eq.${id}`);
+      modalAttachments = modalAttachments.filter(a=>a.id!==id);
+      renderAttachments();
+    }
+
+    // Keyboard: Escape closes modal
+    document.addEventListener('keydown', e => { if (e.key==='Escape') closeModal(); });
 
     // ── Notes ─────────────────────────────────────────────────────────────────
     async function loadNotes(pid) {
