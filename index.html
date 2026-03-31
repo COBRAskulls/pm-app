@@ -456,6 +456,7 @@
     <div class="topbar-right">
       <button class="topbar-back" id="topbarBack" onclick="showDashboard()">← Back</button>
       <div class="rosie-pill">Rosie Online</div>
+      <button onclick="doLogout()" style="background:none;border:1px solid var(--border);border-radius:6px;padding:0.3rem 0.7rem;font-size:0.75rem;color:var(--text2);cursor:pointer;font-family:inherit;transition:all 0.12s" onmouseover="this.style.borderColor='var(--red)';this.style.color='var(--red)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'">Sign out</button>
     </div>
   </header>
 
@@ -504,6 +505,39 @@
         <span class="notes-status" id="notesStatus"></span>
       </div>
       <textarea class="notes-body" id="notesBody" placeholder="Write notes about this project…"></textarea>
+    </div>
+  </div>
+
+  <!-- LOGIN VIEW -->
+  <div class="view" id="viewLogin" style="display:none;min-height:100vh;align-items:center;justify-content:center;background:var(--bg)">
+    <div style="width:100%;max-width:380px;padding:2rem 1.5rem">
+      <div style="text-align:center;margin-bottom:2rem">
+        <div style="width:44px;height:44px;border-radius:12px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.3rem;margin:0 auto 0.75rem">🚀</div>
+        <h1 style="font-size:1.3rem;font-weight:700;color:var(--text)">Rosie PM</h1>
+        <p style="font-size:0.85rem;color:var(--text2);margin-top:0.25rem">Sign in to your workspace</p>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.75rem;box-shadow:var(--shadow-md)">
+        <div id="loginError" style="display:none;background:var(--red-bg);border:1px solid #fca5a5;border-radius:8px;padding:0.65rem 0.9rem;font-size:0.82rem;color:#991b1b;margin-bottom:1.1rem"></div>
+        <div style="margin-bottom:1rem">
+          <label style="font-size:0.78rem;font-weight:600;color:var(--text2);display:block;margin-bottom:0.35rem">Email</label>
+          <input id="loginEmail" type="email" value="john@cobraspeer.com"
+            style="width:100%;border:1px solid var(--border);border-radius:8px;padding:0.6rem 0.85rem;font-size:0.88rem;font-family:inherit;color:var(--text);background:var(--surface2);outline:none;transition:border-color 0.12s"
+            onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'"
+            onkeydown="if(event.key==='Enter')document.getElementById('loginPassword').focus()">
+        </div>
+        <div style="margin-bottom:1.35rem">
+          <label style="font-size:0.78rem;font-weight:600;color:var(--text2);display:block;margin-bottom:0.35rem">Password</label>
+          <input id="loginPassword" type="password" placeholder="Enter your password"
+            style="width:100%;border:1px solid var(--border);border-radius:8px;padding:0.6rem 0.85rem;font-size:0.88rem;font-family:inherit;color:var(--text);background:var(--surface2);outline:none;transition:border-color 0.12s"
+            onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'"
+            onkeydown="if(event.key==='Enter')doLogin()">
+        </div>
+        <button id="loginBtn" onclick="doLogin()"
+          style="width:100%;background:var(--accent);color:#fff;border:none;border-radius:8px;padding:0.65rem;font-size:0.9rem;font-weight:600;cursor:pointer;transition:background 0.12s;font-family:inherit"
+          onmouseover="this.style.background='var(--accent-hover)'" onmouseout="this.style.background='var(--accent)'">
+          Sign In
+        </button>
+      </div>
     </div>
   </div>
 
@@ -1034,8 +1068,92 @@
       this.style.height = Math.min(this.scrollHeight, 90) + 'px';
     });
 
+    // ── Auth ──────────────────────────────────────────────────────────────────
+    const ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9jdWlmZGZ0emlyZmRpcXN6a2F4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5NzI0MjAsImV4cCI6MjA5MDU0ODQyMH0.TpUlB8h60C2yU_7tTtyo31CWu0qe_tf5KBvD83kthoY';
+    let userSession = null;
+
+    function showLogin() {
+      document.getElementById('viewLogin').style.display = 'flex';
+      document.getElementById('viewDash').classList.remove('active');
+      document.getElementById('viewDetail').classList.remove('active');
+      document.querySelector('header.topbar').style.display = 'none';
+    }
+
+    function hideLogin() {
+      document.getElementById('viewLogin').style.display = 'none';
+      document.querySelector('header.topbar').style.display = 'flex';
+    }
+
+    async function doLogin() {
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      const btn = document.getElementById('loginBtn');
+      const err = document.getElementById('loginError');
+      err.style.display = 'none';
+      btn.textContent = 'Signing in…'; btn.disabled = true;
+
+      try {
+        const res = await fetch(`${SB_URL}/auth/v1/token?grant_type=password`, {
+          method: 'POST',
+          headers: { 'apikey': ANON_KEY, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        if (!res.ok || data.error) throw new Error(data.error_description || data.message || 'Login failed');
+
+        // Store session
+        userSession = data;
+        localStorage.setItem('rosie_pm_session', JSON.stringify({ access_token: data.access_token, refresh_token: data.refresh_token, expires_at: Date.now() + (data.expires_in * 1000) }));
+
+        hideLogin();
+        showDashboard();
+      } catch(e) {
+        err.textContent = e.message; err.style.display = 'block';
+      } finally {
+        btn.textContent = 'Sign In'; btn.disabled = false;
+      }
+    }
+
+    function doLogout() {
+      localStorage.removeItem('rosie_pm_session');
+      userSession = null;
+      showLogin();
+    }
+
+    async function refreshSession(stored) {
+      try {
+        const res = await fetch(`${SB_URL}/auth/v1/token?grant_type=refresh_token`, {
+          method: 'POST',
+          headers: { 'apikey': ANON_KEY, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ refresh_token: stored.refresh_token })
+        });
+        const data = await res.json();
+        if (!res.ok || data.error) return null;
+        const updated = { access_token: data.access_token, refresh_token: data.refresh_token, expires_at: Date.now() + (data.expires_in * 1000) };
+        localStorage.setItem('rosie_pm_session', JSON.stringify(updated));
+        return updated;
+      } catch(_) { return null; }
+    }
+
     // ── Boot ─────────────────────────────────────────────────────────────────
-    showDashboard();
+    (async () => {
+      // Check for stored session
+      const stored = JSON.parse(localStorage.getItem('rosie_pm_session') || 'null');
+      if (stored) {
+        // If close to expiry, refresh
+        if (Date.now() > stored.expires_at - 60000) {
+          const refreshed = await refreshSession(stored);
+          if (!refreshed) { showLogin(); return; }
+          userSession = refreshed;
+        } else {
+          userSession = stored;
+        }
+        hideLogin();
+        showDashboard();
+      } else {
+        showLogin();
+      }
+    })();
   </script>
 </body>
 </html>
