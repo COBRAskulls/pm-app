@@ -178,6 +178,27 @@
     .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--border); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.6s linear infinite; vertical-align: middle; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
+    /* NOTES */
+    .notes-section {
+      margin-top: 2rem;
+      background: var(--card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden;
+    }
+    .notes-header {
+      padding: 0.85rem 1.4rem; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .notes-header .col-title { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text); }
+    .notes-save-status { font-size: 0.7rem; color: var(--muted); transition: color 0.3s; }
+    .notes-save-status.saved { color: var(--green); }
+    .notes-save-status.saving { color: var(--yellow); }
+    .notes-textarea {
+      width: 100%; min-height: 180px; background: transparent; border: none; outline: none;
+      padding: 1.2rem 1.4rem; font-family: inherit; font-size: 0.88rem; color: var(--white);
+      line-height: 1.7; resize: vertical; color: var(--text);
+    }
+    .notes-textarea::placeholder { color: var(--muted); }
+    .notes-textarea:focus { color: var(--white); }
+
     footer { margin-top: 2.5rem; text-align: center; font-size: 0.7rem; color: var(--muted); padding-bottom: 2rem; }
 
     @media (max-width: 600px) {
@@ -236,6 +257,15 @@
       </div>
       <div class="project-meta-bar" id="detailMeta"></div>
       <div id="taskBoard" class="task-board"></div>
+
+      <div class="notes-section" id="notesSection">
+        <div class="notes-header">
+          <span class="col-title">📝 Notes</span>
+          <span class="notes-save-status" id="notesSaveStatus"></span>
+        </div>
+        <textarea class="notes-textarea" id="notesTextarea" placeholder="Write project notes here… auto-saves as you type."></textarea>
+      </div>
+
       <footer>Managed by Rosie · Cobra & Speer Holdings LLC</footer>
     </div>
   </div>
@@ -362,6 +392,7 @@
         ).join('');
 
         await loadTasks(id);
+        await loadNotes(id);
       } catch (e) {
         document.getElementById('taskBoard').innerHTML = `<div class="error">Failed to load project: ${e.message}</div>`;
       }
@@ -468,6 +499,58 @@
     function esc(s) {
       if (!s) return '';
       return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // ── Notes ─────────────────────────────────────────────────────────────────
+    let notesDebounce = null;
+    let currentNoteId = null;
+
+    async function loadNotes(projectId) {
+      const textarea = document.getElementById('notesTextarea');
+      const status   = document.getElementById('notesSaveStatus');
+      textarea.value = '';
+      status.textContent = '';
+      currentNoteId = null;
+
+      try {
+        const rows = await GET(`notes?project_id=eq.${projectId}&order=created_at.asc&limit=1`);
+        if (rows && rows.length > 0) {
+          currentNoteId = rows[0].id;
+          textarea.value = rows[0].content || '';
+        }
+      } catch (e) {
+        console.error('Failed to load notes', e);
+      }
+
+      textarea.oninput = () => {
+        const status = document.getElementById('notesSaveStatus');
+        status.textContent = 'Saving…';
+        status.className = 'notes-save-status saving';
+        clearTimeout(notesDebounce);
+        notesDebounce = setTimeout(() => saveNotes(projectId), 1000);
+      };
+    }
+
+    async function saveNotes(projectId) {
+      const textarea = document.getElementById('notesTextarea');
+      const status   = document.getElementById('notesSaveStatus');
+      const content  = textarea.value;
+
+      try {
+        if (currentNoteId) {
+          await PATCH(`notes?id=eq.${currentNoteId}`, { content, updated_at: new Date().toISOString() });
+        } else {
+          const [row] = await POST('notes', { project_id: projectId, content });
+          currentNoteId = row.id;
+        }
+        status.textContent = 'Saved ✓';
+        status.className = 'notes-save-status saved';
+        setTimeout(() => { status.textContent = ''; status.className = 'notes-save-status'; }, 2000);
+      } catch (e) {
+        status.textContent = 'Save failed';
+        status.className = 'notes-save-status';
+        console.error('Notes save error', e);
+      }
     }
 
     // ── Init ──────────────────────────────────────────────────────────────────
